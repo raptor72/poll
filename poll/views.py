@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+
 
 # Create your views here.
 
 def polls_list(request):
-    return HttpResponse('<h1>Hello world</h1>')
+    n = ['Maksim', 'Lubov', 'Vasya', 'Wolf']
+    return render(request, 'poll/index.html', context={'names': n})
+
