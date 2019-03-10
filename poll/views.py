@@ -1,9 +1,14 @@
 from django.shortcuts import render
 
+from .models import Poll
 
 # Create your views here.
 
 def polls_list(request):
-    n = ['Maksim', 'Lubov', 'Vasya', 'Wolf']
-    return render(request, 'poll/index.html', context={'names': n})
+    polls = Poll.objects.all()
+    return render(request, 'poll/index.html', context={'polls': polls})
 
+
+def poll_detail(request, slug):
+    poll = Poll.objects.get(slug__iexact=slug)
+    return render(request, 'poll/poll_detail.html', context={'poll': poll})

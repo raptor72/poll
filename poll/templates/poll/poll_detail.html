@@ -1,0 +1,15 @@
+{% extends 'poll/base_poll.html' %}
+
+{% block title %}
+    {{ poll.title }} - {{ poll.super }}
+{% endblock %}
+
+{% block content %}
+<h1>
+    {{ poll.title }}
+</h1>
+<p>
+    {{ poll.comment }}
+</p>
+{% endblock %}
+
