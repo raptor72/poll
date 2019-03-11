@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .models import Poll
+from .models import Poll, Question
 
 # Create your views here.
 
