@@ -26,4 +26,9 @@ class Question(models.Model):
     def __str__(self):
         return '{}'.format(self.text)
 
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete = models.CASCADE)
+    text = models.CharField(max_length=150)
+    is_answered = models.BooleanField(default=False)
 
+#    def make_choise(self):

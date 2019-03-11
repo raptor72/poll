@@ -16,7 +16,12 @@
     {% for question in poll.questions.all %}
         {{ question.text  }}
         <br>
-    {% endfor  %}
+          {% for answer in question.choice_set.all %}
+              {{ answer.text }}
+              <br>
+          {% endfor %}
+        <br>
+    {% endfor %}
 </p>
 {% endblock %}
 
