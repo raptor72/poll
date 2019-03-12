@@ -1,8 +1,6 @@
 from django.db import models
 from django.shortcuts import reverse
 
-# Create your models here.
-
 class Poll(models.Model):
     title = models.CharField(max_length=150, db_index=True)
     slug = models.SlugField(max_length=150, unique=True)
@@ -15,7 +13,7 @@ class Poll(models.Model):
         return reverse('poll_detail_url', kwargs={'slug': self.slug})
 
     def __str__(self):
-        return '{}'.format(self.title)
+        return self.title
 
 
 class Question(models.Model):
@@ -31,4 +29,4 @@ class Choice(models.Model):
     text = models.CharField(max_length=150)
     is_answered = models.BooleanField(default=False)
 
-#    def make_choise(self):
+
