@@ -18,12 +18,6 @@
         <br>
           {% for answer in question.choice_set.all %}
               {{ answer.text }}
-              
-             <input type="radio" 
-                    name="choice" 
-                    value="{{choice.id}}"/> 
-
-
               <br>
           {% endfor %}
         <br>
