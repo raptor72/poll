@@ -29,6 +29,13 @@ class Question(models.Model):
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete = models.CASCADE)
     text = models.CharField(max_length=150)
-    is_answered = models.BooleanField(default=False)
+    is_answered = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.text
+
+class Vote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
 

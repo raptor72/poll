@@ -2,16 +2,17 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
 
-from .models import Poll, Question
-from .utils import ObjectDetailMixin
+from .models import Poll, Question, Choice, Vote
+#from .utils import ObjectDetailMixin
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+#from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 def polls_list(request):
     polls = Poll.objects.all()
@@ -28,15 +29,31 @@ def login_user(request):
         else:
             messages.error(request, 'uncorrect name or password')
 
+
     return render(request, 'poll/login.html', {})
 
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse('polls_list_url'))
 
-class PollDetail(LoginRequiredMixin, ObjectDetailMixin, View):
-    model = Poll
-    template = 'poll/poll_detail.html'
-    login_url = '/poll/login/'
-    redirect_field_name = 'redirect_to'
+@login_required(login_url='/poll/login/')
+def poll_detail(request, slug):
+    poll = Poll.objects.get(slug__iexact=slug)
 
+    if request.method == "POST":
+        print(request.POST)
+        print("POSTED!!!!")
+        print(poll.slug)
+
+    return render(request, 'poll/poll_detail.html', context={'poll': poll})
+
+
+def poll_vote(request, slug):
+    #print(request.POST)
+    answer_id = request.POST['choice']
+#    print(answer_id) #19
+    answer = Choice.objects.get(id=answer_id)
+#    print(answer)    #Yes, I celebrate
+    answer.is_answered += 1
+    answer.save()
+    return HttpResponse('Slug is {}'.format(slug)) #Slug is cars-url

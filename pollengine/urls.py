@@ -23,6 +23,5 @@ urlpatterns = [
     path('', redirect_poll),
     path('admin/', admin.site.urls),
     path('poll/', include('poll.urls'))
-#    path('login/', include('poll.urls'))
 ]
 
