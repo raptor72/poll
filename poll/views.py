@@ -50,10 +50,14 @@ def poll_detail(request, slug):
 
 def poll_vote(request, slug):
     #print(request.POST)
-    answer_id = request.POST['choice']
-#    print(answer_id) #19
-    answer = Choice.objects.get(id=answer_id)
-#    print(answer)    #Yes, I celebrate
-    answer.is_answered += 1
-    answer.save()
-    return HttpResponse('Slug is {}'.format(slug)) #Slug is cars-url
+    answer_id = request.POST.get('choice')
+    if answer_id:
+    #    print(answer_id) #19
+        answer = Choice.objects.get(id=answer_id)
+    #    print(answer)    #Yes, I celebrate
+        poll = Poll.objects.get(slug__iexact=slug)
+        answer.is_answered += 1
+        answer.save()
+#        return HttpResponse('Slug is {}'.format(slug)) #Slug is cars-url
+        return render(request, 'poll/poll_result.html', {'poll': poll})
+    return HttpResponse("No answer choiced!")

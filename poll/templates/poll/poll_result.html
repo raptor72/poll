@@ -1,0 +1,31 @@
+{% extends 'poll/base_poll.html' %}
+
+{% block title %}
+    {{ poll.title }} - {{ poll.super }}
+{% endblock %}
+
+{% block content %}
+<h1>
+    {{ poll.title }}
+</h1>
+<p>
+    {{ poll.comment }}
+</p>
+
+<p>
+    {% for question in poll.questions.all %}
+        {{ question.text  }}
+
+        <br>
+          <ul>
+          {% for choice in question.choice_set.all %}
+    <li>{{ choice.text }} - {{ choice.is_answered}}</li>
+          {% endfor %}
+          </ul>
+        <br>
+    {% endfor %}
+
+
+</p>
+{% endblock %}
+
