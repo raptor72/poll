@@ -28,8 +28,6 @@ def login_user(request):
             return HttpResponseRedirect(reverse('polls_list_url'))
         else:
             messages.error(request, 'uncorrect name or password')
-
-
     return render(request, 'poll/login.html', {})
 
 def logout_user(request):
@@ -39,25 +37,28 @@ def logout_user(request):
 @login_required(login_url='/poll/login/')
 def poll_detail(request, slug):
     poll = Poll.objects.get(slug__iexact=slug)
-
-    if request.method == "POST":
-        print(request.POST)
-        print("POSTED!!!!")
-        print(poll.slug)
-
+#    if request.method == "POST":
+#        print(request.POST)
+#        print("POSTED!!!!")
+#        print(poll.slug)
     return render(request, 'poll/poll_detail.html', context={'poll': poll})
 
 
 def poll_vote(request, slug):
     #print(request.POST)
     answer_id = request.POST.get('choice')
+    poll = Poll.objects.get(slug__iexact=slug)
     if answer_id:
     #    print(answer_id) #19
         answer = Choice.objects.get(id=answer_id)
     #    print(answer)    #Yes, I celebrate
-        poll = Poll.objects.get(slug__iexact=slug)
+#        poll = Poll.objects.get(slug__iexact=slug)
         answer.is_answered += 1
         answer.save()
 #        return HttpResponse('Slug is {}'.format(slug)) #Slug is cars-url
-        return render(request, 'poll/poll_result.html', {'poll': poll})
-    return HttpResponse("No answer choiced!")
+#        return render(request, 'poll/poll_result.html', {'poll': poll})
+#    return HttpResponse("No answer choiced!")
+    else:
+        messages.error(request, 'No answer choiced!')
+        return render(request, 'poll/poll_detail.html', context={'poll': poll})
+    return render(request, 'poll/poll_result.html', {'poll': poll})
