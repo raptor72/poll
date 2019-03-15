@@ -21,27 +21,34 @@
 {% endif %}
 
 <p>
-    {% for question in poll.questions.all %}
-        {{ question.text  }}
-        <form action="{% url 'vote' poll.slug %}" method="post">
+
+     <form action="{% url 'vote' poll.slug %}" method="post">
+{#   <form action="." method="post"> #}
        {% csrf_token %}
+
+    {% for question in poll.questions.all %}
+            <fieldset id={{ question.id }}>
+
+        {{ question.text  }}
+
         <br>
           {% for choice in question.choice_set.all %}
 
-    <input type="radio"
-           name="choice"
-           id="choice{{ forloop.counter }}"
-           value="{{ choice.id }}">
-    <label for="choice{{ forloop.counter }}">{{ choice.text }}</label><br>
 
-              <br>
+             <input type="radio"
+              name="choice - {{ choice.text }}"
+              id="choice{{ forloop.counter }}"
+              value="{{ choice.id }}">
+              <label for="choice{{ forloop.counter }}">{{ choice.text }}</label><br>
+
+
           {% endfor %}
-        <input type="submit" value="Vote">
-        </form>
+
+            </fieldset>
         <br>
     {% endfor %}
-
-
+          <input type="submit" value="Vote">
+  </form>
 
 </p>
 {% endblock %}

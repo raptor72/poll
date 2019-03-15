@@ -39,14 +39,24 @@ def poll_detail(request, slug):
 
 
 def poll_vote(request, slug):
-    #print(request.POST)
-    answer_id = request.POST.get('choice')
+#    print(request.POST.items)
     poll = Poll.objects.get(slug__iexact=slug)
-    if answer_id:
-        answer = Choice.objects.get(id=answer_id)
-        answer.is_answered += 1
-        answer.save()
+    all_questions = len(poll.questions.all())
+    send_questions = []
+    for i in request.POST.items():
+#        print(i)
+        if 'choice' in i[0]:
+            send_questions.append(i[1])
+#            print(send_questions)
+    if len(send_questions) != all_questions:
+#            print(send_questions)
+            messages.error(request, 'You should chioce all answers')
+            return render(request, 'poll/poll_detail.html', context={'poll': poll})
     else:
-        messages.error(request, 'No answer choiced!')
-        return render(request, 'poll/poll_detail.html', context={'poll': poll})
-    return render(request, 'poll/poll_result.html', {'poll': poll})
+        for i in send_questions:
+            answer_id = i
+            answer = Choice.objects.get(id=answer_id)
+#            print(answer)
+            answer.is_answered += 1
+            answer.save()
+        return render(request, 'poll/poll_result.html', {'poll': poll})
