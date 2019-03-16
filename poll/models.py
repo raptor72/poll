@@ -40,11 +40,14 @@ class Question(models.Model):
     def __str__(self):
         return '{}'.format(self.text)
 
+    class Meta:
+        ordering = ['order']
+
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(max_length=150)
-    is_answered = models.IntegerField(default=0)
+    order = models.IntegerField(default=0)
 
     def __str__(self):
         return self.text
@@ -58,6 +61,9 @@ class Choice(models.Model):
         else:
             percent = round( (self.num_votes() / Poll.num_votes(self.question.poll) * 100), 2)
             return percent
+
+    class Meta:
+        ordering = ['order']
 
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
