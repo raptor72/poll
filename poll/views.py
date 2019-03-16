@@ -1,5 +1,4 @@
-from django.shortcuts import render, redirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
 
 from .models import Poll, Question, Choice, Vote
@@ -37,8 +36,7 @@ def poll_detail(request, slug):
     poll = Poll.objects.get(slug__iexact=slug)
 #    poll = get_object_or_404(Poll, slug__iexact=slug)  # try it later
     user_can_vote = poll.user_can_vote(request.user)
-#    results = poll.get_results_dict()
-    return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote, 'results': poll.get_results_dict()})
+    return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote})
 
 
 def poll_vote(request, slug):
@@ -49,7 +47,8 @@ def poll_vote(request, slug):
         messages.error(request, 'You are already voted')
         return render(request, 'poll/poll_detail.html', context={'poll': poll})
 
-    all_questions = len(poll.questions.all())
+#    all_questions = len(poll.questions.all())
+    all_questions = len(poll.question_set.all())
     send_questions = []
     for i in request.POST.items():
 #        print(i)
@@ -66,8 +65,10 @@ def poll_vote(request, slug):
             answer = Choice.objects.get(id=answer_id)
 #            print(answer)
             new_vote = Vote(user=request.user, poll=poll, choice=answer)
-            print(new_vote)
+#            print(new_vote)
             new_vote.save()
 #            answer.is_answered += 1
 #            answer.save()
-        return render(request, 'poll/poll_result.html', {'poll': poll})
+#        return render(request, 'poll/poll_result.html', {'poll': poll})
+        return redirect('poll_detail_url', slug=poll.slug)
+

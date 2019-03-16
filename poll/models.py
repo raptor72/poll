@@ -9,7 +9,7 @@ class Poll(models.Model):
     comment = models.TextField(blank=True, db_index=True)
     date_create = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=False)
-    questions = models.ManyToManyField('Question', blank=True, related_name='polls')
+#    questions = models.ManyToManyField('Question', blank=True, related_name='polls')
 
     def get_absolute_url(self):
         return reverse('poll_detail_url', kwargs={'slug': self.slug})
@@ -29,34 +29,20 @@ class Poll(models.Model):
             s.add(i.user)
         return len(s)
 
-    def get_results_dict(self):
-        res = []
-        for question in self.questions.all():
-            for choice in question.choice_set.all():
-#                print(choice.num_votes())
-#                print(self.num_votes())
-                d = {}
-                d['text'] = choice.text
-                d['num_votes'] = choice.num_votes()
-                if not self.num_votes():
-                    d['percent'] = 0
-                else:
-                    d['percent'] = choice.num_votes() / self.num_votes() * 100
-                res.append(d)
-        return res
+
 
 class Question(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     text = models.CharField(max_length=150)
-    case = models.CharField(max_length=150, blank=True)
+    order = models.IntegerField(default=0)
     answer = models.CharField(max_length=150, blank=True)
 
     def __str__(self):
         return '{}'.format(self.text)
 
 
-
 class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete = models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(max_length=150)
     is_answered = models.IntegerField(default=0)
 
@@ -65,6 +51,13 @@ class Choice(models.Model):
 
     def num_votes(self):
         return self.vote_set.count()
+
+    def percent(self):
+        if self.num_votes() == 0:
+            return 0
+        else:
+            percent = round( (self.num_votes() / Poll.num_votes(self.question.poll) * 100), 2)
+            return percent
 
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

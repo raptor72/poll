@@ -21,7 +21,8 @@
 {% endif %}
 
 <p>
-    {% for question in poll.questions.all %}
+{#    {% for question in poll.questions.all %} #}
+      {% for question in poll.question_set.all %}
         {{ question.text  }}
 
         <br>
