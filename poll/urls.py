@@ -8,5 +8,6 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('<str:slug>/', poll_detail, name = 'poll_detail_url'),
-    path('<str:slug>/vote/', poll_vote, name='vote')
+    path('<str:slug>/vote/', poll_vote, name='vote'),
+    path('<str:slug>/result/', poll_result, name='poll_result'),
 ]

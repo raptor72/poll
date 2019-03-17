@@ -9,7 +9,6 @@ class Poll(models.Model):
     comment = models.TextField(blank=True, db_index=True)
     date_create = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=False)
-#    questions = models.ManyToManyField('Question', blank=True, related_name='polls')
 
     def get_absolute_url(self):
         return reverse('poll_detail_url', kwargs={'slug': self.slug})
@@ -28,7 +27,6 @@ class Poll(models.Model):
         for i in self.vote_set.all():
             s.add(i.user)
         return len(s)
-
 
 
 class Question(models.Model):
@@ -59,7 +57,7 @@ class Choice(models.Model):
         if self.num_votes() == 0:
             return 0
         else:
-            percent = round( (self.num_votes() / Poll.num_votes(self.question.poll) * 100), 2)
+            percent = round((self.num_votes() / Poll.num_votes(self.question.poll) * 100), 2)
             return percent
 
     class Meta:

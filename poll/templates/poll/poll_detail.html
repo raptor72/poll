@@ -25,8 +25,6 @@
      <form action="{% url 'vote' poll.slug %}" method="post">
 {#   <form action="." method="post">  #}
        {% csrf_token %}
-
-{#    {% for question in poll.questions.all %}   #}
       {% for question in poll.question_set.all %}
             <fieldset id={{ question.id }}>
 
@@ -40,7 +38,7 @@
               name="choice - {{ choice.text }}"
               id="choice{{ forloop.counter }}"
               value="{{ choice.id }}">
-              <label for="choice{{ forloop.counter }}">{{ choice.text }} {% if not user_can_vote %} - {{ choice.num_votes }} {{ choice.percent }}{% endif %} </label><br>
+              <label for="choice{{ forloop.counter }}">{{ choice.text }} {% if not user_can_vote %} - {#{{ choice.num_votes }} #} {{ choice.percent }}%{% endif %} </label><br>
 
 
           {% endfor %}
@@ -50,8 +48,6 @@
     {% endfor %}
           <input type="submit" value="Vote" {% if not user_can_vote %}disabled{% endif %} >
   </form>
-
-
 
 </p>
 {% endblock %}

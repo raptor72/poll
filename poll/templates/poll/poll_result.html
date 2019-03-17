@@ -21,14 +21,13 @@
 {% endif %}
 
 <p>
-{#    {% for question in poll.questions.all %} #}
       {% for question in poll.question_set.all %}
         {{ question.text  }}
 
         <br>
           <ul>
           {% for choice in question.choice_set.all %}
-    <li>{{ choice.text }} - {{ choice.is_answered}}</li>
+    <li>{{ choice.text }} - {{ choice.percent}}% </li>
           {% endfor %}
           </ul>
         <br>
