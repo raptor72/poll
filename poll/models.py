@@ -3,6 +3,7 @@ from django.shortcuts import reverse
 
 from django.contrib.auth.models import User
 
+
 class Poll(models.Model):
     title = models.CharField(max_length=150, db_index=True)
     slug = models.SlugField(max_length=150, unique=True)
@@ -62,6 +63,7 @@ class Choice(models.Model):
 
     class Meta:
         ordering = ['order']
+
 
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

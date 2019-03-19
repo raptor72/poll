@@ -1,0 +1,34 @@
+{% extends 'poll/base_poll.html' %}
+
+{% block content %}
+
+
+<p>
+
+{% if messages %}
+    <ul>
+    {% for message in messages  %}
+        <li> {{ message }} </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+</p>
+
+<br>
+
+<h2>hello world</h2>
+
+
+      {% for set in user %}
+
+        {% for poll in set.vote_set.all%}
+
+{#        {{ set.vote_set.all  }} #}
+        {{ poll.poll }}
+          {% endfor %}
+
+      {% endfor %}
+
+
+{% endblock %}

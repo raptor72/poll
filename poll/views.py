@@ -11,9 +11,11 @@ from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 
+
 def polls_list(request):
     polls = Poll.objects.all()
     return render(request, 'poll/index.html', context={'polls': polls})
+
 
 def login_user(request):
     if request.method == "POST":
@@ -27,15 +29,18 @@ def login_user(request):
             messages.error(request, 'uncorrect name or password')
     return render(request, 'poll/login.html', {})
 
+
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse('polls_list_url'))
+
 
 @login_required(login_url='/poll/login/')
 def poll_detail(request, slug):
     poll = get_object_or_404(Poll, slug__iexact=slug)
     user_can_vote = poll.user_can_vote(request.user)
     return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote})
+
 
 def poll_vote(request, slug):
     poll = get_object_or_404(Poll, slug__iexact=slug)
@@ -69,4 +74,16 @@ def poll_result(request, slug):
         return redirect('poll_detail_url', slug=poll.slug)
     else:
         return render(request, 'poll/poll_result.html', {'poll': poll})
+
+
+def user_results(request):
+    superuser = request.user.is_superuser
+    if superuser is False:
+        messages.error(request, 'You are not admin')
+        return redirect('polls_list_url')
+    else:
+        user = User.objects.all()
+        for i in user:
+            print(i.vote_set.all())
+        return render(request, 'poll/user_results.html', {'user': user})
 
