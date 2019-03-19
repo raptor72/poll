@@ -42,6 +42,13 @@ def poll_detail(request, slug):
     return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote})
 
 
+class PollDetail(View):
+    def get(self, request, slug):
+        poll = get_object_or_404(Poll, slug__iexact=slug)
+        user_can_vote = poll.user_can_vote(request.user)
+        return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote})
+
+
 def poll_vote(request, slug):
     poll = get_object_or_404(Poll, slug__iexact=slug)
     if not poll.user_can_vote(request.user):
