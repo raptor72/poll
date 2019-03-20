@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
 
 from .models import Poll, Question, Choice, Vote
+from .utils import ObjectDetailMixin, PollVoteMixin
 
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-
-from django.contrib.auth.decorators import login_required
 
 
 def polls_list(request):
@@ -35,42 +35,16 @@ def logout_user(request):
     return HttpResponseRedirect(reverse('polls_list_url'))
 
 
-@login_required(login_url='/poll/login/')
-def poll_detail(request, slug):
-    poll = get_object_or_404(Poll, slug__iexact=slug)
-    user_can_vote = poll.user_can_vote(request.user)
-    return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote})
+class PollDetail(LoginRequiredMixin, ObjectDetailMixin, View):
+    login_url = '/poll/login/'
+    redirect_field_name = 'poll/poll_detail.html'
+    model = Poll
+    template = 'poll/poll_detail.html'
 
 
-class PollDetail(View):
-    def get(self, request, slug):
-        poll = get_object_or_404(Poll, slug__iexact=slug)
-        user_can_vote = poll.user_can_vote(request.user)
-        return render(request, 'poll/poll_detail.html', context={'poll': poll, 'user_can_vote': user_can_vote})
-
-
-def poll_vote(request, slug):
-    poll = get_object_or_404(Poll, slug__iexact=slug)
-    if not poll.user_can_vote(request.user):
-        messages.error(request, 'You are already voted')
-        return render(request, 'poll/poll_detail.html', context={'poll': poll})
-    all_questions = len(poll.question_set.all())
-    send_questions = []
-    for i in request.POST.items():
-        if 'choice' in i[0]:
-            send_questions.append(i[1])
-    if len(send_questions) != all_questions:
-            messages.error(request, 'You should chioce all answers')
-#            return render(request, 'poll/poll_detail.html', context={'poll': poll})
-            return redirect('poll_detail_url', slug=poll.slug)
-    else:
-        for i in send_questions:
-            answer_id = i
-            answer = Choice.objects.get(id=answer_id)
-            new_vote = Vote(user=request.user, poll=poll, choice=answer)
-            new_vote.save()
-#        return render(request, 'poll/poll_result.html', {'poll': poll})
-        return redirect('poll_detail_url', slug=poll.slug)
+class PollVote(LoginRequiredMixin, PollVoteMixin, View):
+    model = Poll
+    template = 'poll/poll_detail.html'
 
 
 def poll_result(request, slug):
