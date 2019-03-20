@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
 
-from .models import Poll, Question, Choice, Vote
-from .utils import ObjectDetailMixin, PollVoteMixin
+from .models import Poll#, Question, Choice, Vote
+from .utils import PollDetailMixin
 
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -26,7 +26,7 @@ def login_user(request):
             login(request, user)
             return HttpResponseRedirect(reverse('polls_list_url'))
         else:
-            messages.error(request, 'uncorrect name or password')
+            messages.error(request, 'uncorrected name or password')
     return render(request, 'poll/login.html', {})
 
 
@@ -35,16 +35,9 @@ def logout_user(request):
     return HttpResponseRedirect(reverse('polls_list_url'))
 
 
-class PollDetail(LoginRequiredMixin, ObjectDetailMixin, View):
+class PollDetail(LoginRequiredMixin, PollDetailMixin, View):
     login_url = '/poll/login/'
     redirect_field_name = 'poll/poll_detail.html'
-    model = Poll
-    template = 'poll/poll_detail.html'
-
-
-class PollVote(LoginRequiredMixin, PollVoteMixin, View):
-    model = Poll
-    template = 'poll/poll_detail.html'
 
 
 def poll_result(request, slug):

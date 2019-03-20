@@ -8,7 +8,6 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('user_results/', user_results, name='user_results'),
-    path('<str:slug>/', PollDetail.as_view(), name = 'poll_detail_url'),
-    path('<str:slug>/vote/', PollVote.as_view(), name='vote'),
+    path('<str:slug>/', PollDetail.as_view(), name='poll_detail_url'),
     path('<str:slug>/result/', poll_result, name='poll_result'),
 ]
