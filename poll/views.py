@@ -1,13 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View
 
-from .models import Poll#, Question, Choice, Vote
-from .utils import PollDetailMixin
+from .models import Poll
+from .utils import PollDetailMixin, PollResultMixin, UserResultMixin
 
-from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-#from django.urls import reverse
-from django.contrib import messages
 
 from django.views import generic
 
@@ -25,24 +21,14 @@ class PollDetail(LoginRequiredMixin, PollDetailMixin, View):
     redirect_field_name = 'poll/poll_detail.html'
 
 
-def poll_result(request, slug):
-    poll = get_object_or_404(Poll, slug__iexact=slug)
-    superuser = request.user.is_superuser
-    if superuser is False:
-        messages.error(request, 'You are not admin')
-        return redirect('poll_detail_url', slug=poll.slug)
-    else:
-        return render(request, 'poll/poll_result.html', {'poll': poll})
+class PollResult(LoginRequiredMixin, PollResultMixin, View):
+    model = Poll
 
 
-def user_results(request):
-    superuser = request.user.is_superuser
-    if superuser is False:
-        messages.error(request, 'You are not admin')
-        return redirect('polls_list_url')
-    else:
-        user = User.objects.all()
-        for i in user:
-            print(i.vote_set.all())
-        return render(request, 'poll/user_results.html', {'user': user})
+class UserResult(LoginRequiredMixin, UserResultMixin, View):
+    login_url = '/poll/login/'
+    template = 'poll/user_results.html'
+
+
+
 

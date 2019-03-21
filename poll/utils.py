@@ -40,3 +40,29 @@ class PollDetailMixin:
                 new_vote.save()
             return redirect('poll_detail_url', slug=obj.slug)
 
+
+class PollResultMixin:
+    model = None
+    template = 'poll/poll_result.html'
+
+    def get(self, request, slug):
+        obj = get_object_or_404(Poll, slug__iexact=slug)
+        superuser = request.user.is_superuser
+        if superuser is False:
+            messages.error(request, 'You are not admin')
+            return redirect('poll_detail_url', slug=obj.slug)
+        else:
+            return render(request, self.template, context={self.model.__name__.lower(): obj})
+
+
+class UserResultMixin:
+    template = None
+
+    def get(self, request):
+        superuser = request.user.is_superuser
+        if superuser is False:
+            messages.error(request, 'You are not admin')
+            return redirect('polls_list_url')
+        else:
+            user = User.objects.all()
+            return render(request, self.template, {'user': user})

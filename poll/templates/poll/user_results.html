@@ -19,13 +19,14 @@
 
 <h2>hello world</h2>
 
-
       {% for set in user %}
+              {{ set.username }}
+                 <br>
+        {% for poll in set.vote_set.all %}
+<p>
+        Poll: {{ poll.poll }}. Choice is: {{ poll.choice }}
 
-        {% for poll in set.vote_set.all%}
-
-{#        {{ set.vote_set.all  }} #}
-        {{ poll.poll }}
+</p>
           {% endfor %}
 
       {% endfor %}
