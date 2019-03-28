@@ -14,6 +14,7 @@ class ChoiceInline(nested_admin.NestedTabularInline):
     model = Choice
     extra = 1
 
+
 class QuestionInline(nested_admin.NestedStackedInline):
     model = Question
     extra = 1
@@ -24,4 +25,6 @@ class QuestionInline(nested_admin.NestedStackedInline):
 class TableofChoiceAdmin(nested_admin.NestedModelAdmin):
     inlines = [QuestionInline]
 
+
 admin.site.register(Poll, TableofChoiceAdmin)
+
