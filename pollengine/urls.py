@@ -22,6 +22,6 @@ from .views import redirect_poll
 urlpatterns = [
     path('', redirect_poll),
     path('admin/', admin.site.urls),
-    path('poll/', include('poll.urls'))
+    path('poll/', include('poll.urls')),
+    path('nested_admin/', include('nested_admin.urls'))
 ]
-
