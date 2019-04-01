@@ -34,7 +34,7 @@
 
 
              <input type="radio"
-              name="choice - {{ choice.text }}"
+              name="choice - {{ question.id }}"
               id="choice{{ forloop.counter }}"
               value="{{ choice.id }}">
               <label for="choice{{ forloop.counter }}">{{ choice.text }} {% if not user_can_vote %} - {{ choice.percent }}%{% endif %} </label><br>
