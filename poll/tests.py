@@ -3,7 +3,7 @@ from .models import Poll, Question, Choice
 from django.utils import timezone
 
 from django.shortcuts import reverse
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User
 
 
 class PollTest(TestCase):
@@ -37,8 +37,8 @@ class PollTest(TestCase):
                                       order = i['order'])
         return c
 
-    def create_user(self, username = 'autotestuser', password = '123'):
-        return User.objects.create_user(username =  username, password = password)
+    def create_user(self, username = 'autotestuser', password = '123', is_superuser = False):
+        return User.objects.create_user(username =  username, password = password, is_superuser = is_superuser)
 
     def test_poll_creation(self):
         p = self.create_poll()
@@ -47,8 +47,8 @@ class PollTest(TestCase):
 
     def test_question_creation(self):
         q = self.create_questions()
-        print("Question.id:", q.id)
-        print("Question type:", type(q))
+#        print("Question.id:", q.id)
+#        print("Question type:", type(q))
         self.assertTrue(isinstance(q, Question))
 
     def test_choice_creation(self):
@@ -59,7 +59,6 @@ class PollTest(TestCase):
         p = self.create_poll()
         url = reverse('polls_list_url')
         resp = self.client.get(url)
-#        print(type(resp.content))
         self.assertEqual(resp.status_code, 200)
         self.assertIn(p.title, str(resp.content))
 
@@ -69,7 +68,7 @@ class PollTest(TestCase):
         resp = self.client.get(url)
         self.assertEqual(url, p.get_absolute_url())
         self.assertEqual(resp.status_code, 302)
-        assert 'login' in resp.url
+        self.assertIn('login', resp.url)
 
     def test_poll_detail_authenticated(self):
         p = self.create_poll()
@@ -79,20 +78,51 @@ class PollTest(TestCase):
         url = reverse('poll_detail_url', args=[p.slug])
         client = Client()
         client.login(username='autotestuser', password='123')
-        request = client.get(url)
-        print("request.content:", request.content)
-#        self.assertEqual(url, p.get_absolute_url())
-        self.assertEqual(request.status_code, 200)
 
-    def test_poll_not_full_vote(self):
+        def test_content(self):
+            request = client.get(url)
+            self.assertEqual(request.status_code, 200)
+            self.assertEqual(url, p.get_absolute_url())
+            self.assertIn('question', str(request.content))
+
+        def test_incomplete_vote(self):
+            request = client.post(url, {'choice - 1' : '1'})
+            self.assertIn('You should choose one answer in each question', str(client.get(url).content))
+            self.assertIn('0 user voted', str(client.get(url).content))
+            self.assertEqual(request.status_code, 302)
+
+        def test_complete_vote(self):
+            request = client.post(url, {'choice - 1' : '1', 'choice - 2' : '3'})
+            for i in Choice.objects.all():
+                self.assertLessEqual(i.percent(), 100)
+            self.assertIn('1 user voted', str(client.get(url).content))
+            self.assertIn('value="Vote" disabled', str(client.get(url).content))
+            self.assertEqual(p.user_can_vote(user), False)
+            self.assertEqual(p.num_votes(), 1)
+
+        test_content(self)
+        test_incomplete_vote(self)
+        test_complete_vote(self)
+
+    def test_poll_resul(self):
         p = self.create_poll()
-        q = self.create_questions()
-        c = self.create_choices()
-        user = self.create_user()
-        url = reverse('poll_detail_url', args=[p.slug])
+        url = reverse('poll_result', args=[p.slug])
         client = Client()
-        client.login(username='autotestuser', password='123')
-        request = client.post(url, {'choice - 1' : '1'})
-#        print("request.content:", request.items, request.request)
-        self.assertEqual(request.status_code, 302)
+
+        def test_not_superuser(self):
+            user = self.create_user()
+            request = client.get(url)
+            client.login(username='autotestuser', password='123')
+            self.assertIn(p.slug, request.url)
+            self.assertEqual(request.status_code, 302)
+
+        def test_superuser(self):
+            user = self.create_user(username = 'autotestuser2', is_superuser = True)
+            client.login(username='autotestuser2', password='123')
+            request = client.get(url)
+            self.assertEqual(request.status_code, 200)
+
+        test_not_superuser(self)
+        test_superuser(self)
+
 
