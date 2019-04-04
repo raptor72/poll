@@ -136,7 +136,7 @@ class PollTest(TestCase):
         request = client.get(url)
         self.assertEqual(request.status_code, 200)
 
-    def create_full_poll(self, path, method='get', args = None, postdata = None, superuser = False):
+    def create_full_poll(self, path, args = None, postdata = None, superuser = False):
         p = self.create_poll()
         q = self.create_questions()
         c = self.create_choices()
@@ -144,36 +144,50 @@ class PollTest(TestCase):
         url = reverse(path, args = args)
         client = Client()
         client.login(username='autotestuser', password='123')
-        if method == 'get':
-            request = client.get(url)
-        else:
-            request = client.post(url, postdata)
-        return request
+        rpost = client.post(url, postdata)
+        rget = client.get(url)
+        return rget, rpost
 
     def test_user_results_unauth(self):
-        request = self.create_full_poll('user_results')
+        request = self.create_full_poll('user_results')[0]
         self.assertEqual(request.status_code, 302)
 
     def test_user_results2(self):
-        request = self.create_full_poll('user_results', superuser = True)
+        request = self.create_full_poll('user_results', superuser = True)[0]
         self.assertEqual(request.status_code, 200)
 
     def test_poll_result_not_superuser(self):
-        request = self.create_full_poll('poll_result', args=['test_poll_url'])
+        request = self.create_full_poll('poll_result', args=['test_poll_url'])[0]
         self.assertEqual(request.status_code, 302)
 
     def test_poll_result_superuser(self):
-        request = self.create_full_poll('poll_result', args=['test_poll_url'], superuser = True)
+        request = self.create_full_poll('poll_result', args=['test_poll_url'], superuser = True)[0]
         self.assertEqual(request.status_code, 200)
 
     def test_poll_detail_authenticated2(self):
-        request = self.create_full_poll('poll_detail_url', args=['test_poll_url'])
+        request = self.create_full_poll('poll_detail_url', args=['test_poll_url'])[0]
         self.assertEqual(request.status_code, 200)
         self.assertIn('test_poll_url', request.request['PATH_INFO'])
 #        self.assertEqual(url, p.get_absolute_url())
         self.assertIn('question', str(request.content))
 
     def test_incomplete_vote2(self):
-        request = self.create_full_poll('poll_detail_url', method='post', args=['test_poll_url'], postdata = {'choice - 1' : '1'})
+        set =  self.create_full_poll('poll_detail_url' , args=['test_poll_url'], postdata = {'choice - 1' : '1'})
+        rget = set[0]
+        rpost = set[1]
+        self.assertIn('You should choose one answer in each question', str(rget.content))
+        self.assertIn('0 user voted', str(rget.content))
+        self.assertEqual(rpost.status_code, 302)
+
+    def test_complete_vote2(self):
+        set =  self.create_full_poll('poll_detail_url' , args=['test_poll_url'], postdata = {'choice - 1' : '1', 'choice - 2' : '3'})
+        rget = set[0]
+        rpost = set[1]
+        for i in Choice.objects.all():
+            self.assertLessEqual(i.percent(), 100)
+        self.assertIn('1 user voted', str(rget.content))
+        self.assertIn('value="Vote" disabled', str(rget.content))
+        self.assertEqual(Poll.objects.all()[0].user_can_vote(User.objects.all()[0]), False)
+        self.assertEqual(Poll.objects.all()[0].num_votes(), 1)
 
 
