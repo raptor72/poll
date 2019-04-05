@@ -47,13 +47,19 @@ class PollTest(TestCase):
 
     def test_question_creation(self):
         q = self.create_questions()
-#        print("Question.id:", q.id)
-#        print("Question type:", type(q))
         self.assertTrue(isinstance(q, Question))
-
+        self.assertEqual(q.__str__(), q.text)
+ 
     def test_choice_creation(self):
         c = self.create_choices()
         self.assertTrue(isinstance(c, Choice))
+        self.assertEqual(c.__str__(), c.text)
+
+    def test_redirect_poll(self):
+        client = Client()
+        resp = self.client.get('/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual('/poll/', resp.url)
 
     def test_polls_list_view(self):
         p = self.create_poll()
@@ -70,72 +76,6 @@ class PollTest(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn('login', resp.url)
 
-    def test_poll_detail_authenticated(self):
-        p = self.create_poll()
-        q = self.create_questions()
-        c = self.create_choices()
-        user = self.create_user()
-        url = reverse('poll_detail_url', args=[p.slug])
-        client = Client()
-        client.login(username='autotestuser', password='123')
-
-        def test_content(self):
-            request = client.get(url)
-            self.assertEqual(request.status_code, 200)
-            self.assertEqual(url, p.get_absolute_url())
-            self.assertIn('question', str(request.content))
-
-        def test_incomplete_vote(self):
-            request = client.post(url, {'choice - 1' : '1'})
-            self.assertIn('You should choose one answer in each question', str(client.get(url).content))
-            self.assertIn('0 user voted', str(client.get(url).content))
-            self.assertEqual(request.status_code, 302)
-
-        def test_complete_vote(self):
-            request = client.post(url, {'choice - 1' : '1', 'choice - 2' : '3'})
-            for i in Choice.objects.all():
-                self.assertLessEqual(i.percent(), 100)
-            self.assertIn('1 user voted', str(client.get(url).content))
-            self.assertIn('value="Vote" disabled', str(client.get(url).content))
-            self.assertEqual(p.user_can_vote(user), False)
-            self.assertEqual(p.num_votes(), 1)
-
-        test_content(self)
-        test_incomplete_vote(self)
-        test_complete_vote(self)
-
-    def test_poll_result(self):
-        p = self.create_poll()
-        url = reverse('poll_result', args=[p.slug])
-        client = Client()
-
-        def test_not_superuser(self):
-            user = self.create_user()
-            request = client.get(url)
-            client.login(username='autotestuser', password='123')
-            self.assertIn(p.slug, request.url)
-            self.assertEqual(request.status_code, 302)
-
-        def test_superuser(self):
-            user = self.create_user(username = 'autotestuser2', is_superuser = True)
-            client.login(username='autotestuser2', password='123')
-            request = client.get(url)
-            self.assertEqual(request.status_code, 200)
-
-        test_not_superuser(self)
-        test_superuser(self)
-
-    def test_user_results(self):
-        p = self.create_poll()
-        q = self.create_questions()
-        c = self.create_choices()
-        user = self.create_user(is_superuser = True)
-        url = reverse('user_results')
-        client = Client()
-        client.login(username='autotestuser', password='123')
-        request = client.get(url)
-        self.assertEqual(request.status_code, 200)
-
     def create_full_poll(self, path, args = None, postdata = None, superuser = False):
         p = self.create_poll()
         q = self.create_questions()
@@ -148,14 +88,6 @@ class PollTest(TestCase):
         rget = client.get(url)
         return rget, rpost
 
-    def test_user_results_unauth(self):
-        request = self.create_full_poll('user_results')[0]
-        self.assertEqual(request.status_code, 302)
-
-    def test_user_results2(self):
-        request = self.create_full_poll('user_results', superuser = True)[0]
-        self.assertEqual(request.status_code, 200)
-
     def test_poll_result_not_superuser(self):
         request = self.create_full_poll('poll_result', args=['test_poll_url'])[0]
         self.assertEqual(request.status_code, 302)
@@ -164,14 +96,13 @@ class PollTest(TestCase):
         request = self.create_full_poll('poll_result', args=['test_poll_url'], superuser = True)[0]
         self.assertEqual(request.status_code, 200)
 
-    def test_poll_detail_authenticated2(self):
+    def test_poll_detail_authenticated(self):
         request = self.create_full_poll('poll_detail_url', args=['test_poll_url'])[0]
         self.assertEqual(request.status_code, 200)
         self.assertIn('test_poll_url', request.request['PATH_INFO'])
-#        self.assertEqual(url, p.get_absolute_url())
         self.assertIn('question', str(request.content))
 
-    def test_incomplete_vote2(self):
+    def test_incomplete_vote(self):
         set =  self.create_full_poll('poll_detail_url' , args=['test_poll_url'], postdata = {'choice - 1' : '1'})
         rget = set[0]
         rpost = set[1]
@@ -179,7 +110,7 @@ class PollTest(TestCase):
         self.assertIn('0 user voted', str(rget.content))
         self.assertEqual(rpost.status_code, 302)
 
-    def test_complete_vote2(self):
+    def test_complete_vote(self):
         set =  self.create_full_poll('poll_detail_url' , args=['test_poll_url'], postdata = {'choice - 1' : '1', 'choice - 2' : '3'})
         rget = set[0]
         rpost = set[1]
@@ -187,7 +118,8 @@ class PollTest(TestCase):
             self.assertLessEqual(i.percent(), 100)
         self.assertIn('1 user voted', str(rget.content))
         self.assertIn('value="Vote" disabled', str(rget.content))
-        self.assertEqual(Poll.objects.all()[0].user_can_vote(User.objects.all()[0]), False)
-        self.assertEqual(Poll.objects.all()[0].num_votes(), 1)
+        self.assertEqual(Poll.objects.first().user_can_vote(User.objects.first()), False)
+        self.assertEqual(Poll.objects.first().num_votes(), 1)
+
 
 

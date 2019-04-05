@@ -54,15 +54,3 @@ class PollResultMixin:
         else:
             return render(request, self.template, context={self.model.__name__.lower(): obj})
 
-
-class UserResultMixin:
-    template = None
-
-    def get(self, request):
-        superuser = request.user.is_superuser
-        if superuser is False:
-            messages.error(request, 'You are not admin')
-            return redirect('polls_list_url')
-        else:
-            user = User.objects.all()
-            return render(request, self.template, {'user': user})

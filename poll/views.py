@@ -1,7 +1,7 @@
 from django.views.generic import View
 
 from .models import Poll
-from .utils import PollDetailMixin, PollResultMixin, UserResultMixin
+from .utils import PollDetailMixin, PollResultMixin
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -23,12 +23,4 @@ class PollDetail(LoginRequiredMixin, PollDetailMixin, View):
 
 class PollResult(LoginRequiredMixin, PollResultMixin, View):
     model = Poll
-
-
-class UserResult(LoginRequiredMixin, UserResultMixin, View):
-    login_url = '/poll/login/'
-    template = 'poll/user_results.html'
-
-
-
 
