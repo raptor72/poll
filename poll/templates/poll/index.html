@@ -10,12 +10,12 @@
 
 {% block content %}
 
-    <h2>All polls:</h2>
-
     {% for poll in polls %}
        {% if poll.is_public is True %}
            <p>
-              {{ poll.title }} , {{ poll.date_create }} <a href="{{ poll.get_absolute_url }}" class="but1">look</a>
+               <div class="list-group-item list-group-item-action col-6 offset-md-3">
+              {{ poll.title }} , {{ poll.date_create }} <a href="{{ poll.get_absolute_url }}" class="but1 ">look</a>
+               </div>
            </p>
        {% endif %}
     {% endfor %}

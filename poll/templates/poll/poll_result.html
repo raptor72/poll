@@ -5,23 +5,29 @@
 {% endblock %}
 
 {% block content %}
-<h1>
+
+    <div class="alert alert-success col-6 offset-md-3">
     {{ poll.title }}
-</h1>
-<p>
-    {{ poll.comment }}
-</p>
+    </div>
+
 
 {% if messages %}
+<div class="col-6 offset-md-3">
     <ul>
     {% for message in messages  %}
-        <li> {{ message }} </li>
+        <li>
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        </li>
     {% endfor %}
     </ul>
+</div>
 {% endif %}
 
-<p>
+
       {% for question in poll.question_set.all %}
+    <div class="list-group-item list-group-item-action col-6 offset-md-3">
         {{ question.text  }}
 
         <br>
@@ -31,9 +37,10 @@
           {% endfor %}
           </ul>
         <br>
+    </div>
     {% endfor %}
 
 
-</p>
+
 {% endblock %}
 

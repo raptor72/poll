@@ -5,19 +5,24 @@
 {% endblock %}
 
 {% block content %}
-<h1>
+
+    <div class="alert alert-success col-6 offset-md-3">
     {{ poll.title }} - {{ poll.num_votes }} user voted
-</h1>
-<p>
-    {{ poll.comment }} 
-</p>
+    </div>
+
 
 {% if messages %}
+<div class="col-6 offset-md-3">
     <ul>
     {% for message in messages  %}
-        <li> {{ message }} </li>
+        <li>
+            <div class="alert alert-danger" role="alert">
+            {{ message }}
+            </div>
+        </li>
     {% endfor %}
     </ul>
+</div>
 {% endif %}
 
 
@@ -26,7 +31,7 @@
        {% csrf_token %}
       {% for question in poll.question_set.all %}
             <fieldset id={{ question.id }}>
-
+<div class="list-group-item list-group-item-action col-6 offset-md-3">
         {{ question.text  }}
 
         <br>
@@ -41,11 +46,14 @@
 
 
           {% endfor %}
+</div>
 
             </fieldset>
         <br>
     {% endfor %}
+         <div class="col-6 offset-md-3">
           <input type="submit" value="Vote" {% if not user_can_vote %}disabled{% endif %} >
+         </div>
   </form>
 
 
