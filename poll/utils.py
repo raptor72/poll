@@ -4,6 +4,10 @@ from django.contrib import messages
 from .models import *
 
 
+from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.urls import reverse
+
+
 class PollDetailMixin:
     model = Poll
     template = 'poll/poll_detail.html'
@@ -53,4 +57,18 @@ class PollResultMixin:
             return redirect('poll_detail_url', slug=obj.slug)
         else:
             return render(request, self.template, context={self.model.__name__.lower(): obj})
+
+
+class KerberosResultMixin:
+    model = None
+    template = 'poll/poll_list_url.html'
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        print(request.META)
+        polls = model.objects.all()
+        return render(request, 'poll/index.html', context={'polls': polls})
+        
+
 
