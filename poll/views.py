@@ -26,13 +26,11 @@ def kerberos_test(request):
         print(request.META)
         print("Auth complite")
     else:
-        unauthorized_template_name = 'poll/unauthorized.html'
         response = TemplateResponse(request, 'poll/unauthorized.html', status=401)
         response["Access-Control-Allow-Credentials"] = "true"
         response["Access-Control-Allow-Origin"] = "tarasov.o-code.ru"
         response["Access-Control-Allow-Methods"] = "DELETE,GET,OPTIONS,POST"
         response["Access-Control-Allow-Headers"] = "Content-Type,User-Agent,Cache-Control,Origin,X-Requested-With,Accept,www-Authenticate,Authorization"
-        # response["WWW-Authenticate"] = 'Negotiate, Basic realm="O-CODE.RU"'
         response["WWW-Authenticate"] = 'Negotiate'
         return response
     return render(request, 'poll/index.html', context={'polls': polls})
