@@ -2,3 +2,5 @@
 /pollengine/__pycache__/
 /poll/migrations/__pycache__/
 .coverage
+venv/
+.idea/
